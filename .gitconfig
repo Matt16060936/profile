@@ -1,0 +1,9 @@
+[user]
+	name = YOUR_NAME_HERE_LOL
+	email = YOUR_EMAIL_HERE_LOL
+[alias]
+	lol = log --decorate --color --oneline --graph
+[color]
+	diff = auto
+	branch = auto
+	status = auto
