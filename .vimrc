@@ -1,4 +1,6 @@
 syntax on
+set background=dark
+set term=screen-256color
 colo slate
 set nu
 set nosm
