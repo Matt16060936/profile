@@ -4,12 +4,15 @@ set nu
 set nosm
 set nohls
 set nowrap
+set noeol
+set nois
 set so=10
 set nocp
+set et
 set sw=4
 set ts=4
+set sts
 set ai
-set noet
 map <left> :bp<cr>
 map <right> :bn<cr>
 map <up> :cp<cr>
