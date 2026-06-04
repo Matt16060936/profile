@@ -1,0 +1,61 @@
+#!/bin/bash
+# requirements: bash, coreutils (readlink/basename), findutils (find), jar
+SELF=$(basename `readlink -f $0`)
+VERBOSE=0
+
+function errquit {
+    echo "$1" >&2
+    exit 1
+}
+
+function help_and_exit {
+    echo >&2 ''
+    echo >&2 "usage: $SELF [-v][-d dir]... names..."
+    echo >&2 ''
+    echo >&2 'opts:'
+    echo >&2'   -d dir    dirs to scan for jar files (can use many times)'
+    echo >&2 '  -v        verbose: print missing/FOUND for each jar checked'
+    echo >&2 ''
+    echo >&2 'args:'
+    echo >&2 '  names     which files to examine each jar for'
+    echo >&2 ''
+    echo >&2 'notes:'
+    echo >&2 '  if -d is not provided then scan starts with current directory'
+    echo >&2 ''
+    echo >&2 'example:'
+    echo >&2 "  $SELF -d ~/.m2/repository/org/slf4j/slf4j-api 'Reporter\\\$Level\.class'"
+    echo >&2 "  $SELF -v -d /opt/accumulo/latest/lib -d /opt/zookeeper/latest/lib 'META-INF/services/.*\.JsonFactory'"
+    echo >&2 ''
+    exit 1
+}
+
+DIRS=()
+while getopts ':hvd:' OPT; do
+    case "$OPT" in
+    h) help_and_exit;;
+    v) VERBOSE=1;;
+    d) DIRS+=("$OPTARG");;
+    \?) errquit "unsupported option: $OPTARG";;
+    *) errquit "option missing value: $OPTARG";;
+    esac
+done
+shift $((OPTIND-1))
+
+[[ ${#DIRS[@]} -lt 1 ]] && DIRS+=('.')
+[[ ${#@} -lt 1 ]] && errquit 'zero names specified (see -h for help)'
+
+GREP=(grep '-q' '-i')
+for NAME in "${@}"; do
+    GREP+=('-e' "$NAME")
+done
+for DIR in "${DIRS[@]}"; do
+    find "$DIR" -type f -name '*.jar' | while read JAR; do
+        [[ $VERBOSE -eq 1 ]] && echo -n "checking $JAR ... "
+        jar tf "$JAR" 2>/dev/null | "${GREP[@]}"; RC=$?
+        if [[ $RC -eq 0 ]]; then
+            [[ $VERBOSE -eq 1 ]] && echo 'FOUND!' || echo "$JAR"
+        else
+            [[ $VERBOSE -eq 1 ]] && echo 'missing'
+        fi
+    done
+done
