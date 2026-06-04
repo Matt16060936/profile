@@ -1,6 +1,7 @@
-echo "[$(date +'%F %T')] ~/.bashrc" >>~/.userlog
+#!/bin/bash
+# requirements: bash, coreutils (date), vim
 
-alias tmux='tmux -2'
+echo "[$(date +'%F %T')] ~/.bashrc" >>~/.userlog
 
 # change all the "154" to "111" for blue instead of green
 function update_prompt {
