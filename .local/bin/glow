@@ -1,0 +1,22 @@
+#!/usr/bin/python3
+import sys, re, argparse
+
+colors = {'red':196,'orange':208,'yellow':227,'green':154,'blue':33,'purple':129,'cyan':123,'pink':207,'teal':48,'moss':100,'white':255,'grey':243,'ice':75}
+
+parser = argparse.ArgumentParser(prog='glow', usage='%(prog)s [options] arguments', description='reads stdin and highlights patterns', epilog=None)
+parser.add_argument('patterns', nargs='*', help='patterns to glow when matched')
+parser.add_argument('-l', '--limit', default=9999, type=int, help='limit how many matches to glow per-line')
+parser.add_argument('-c', '--color', default='blue', choices=colors, help='which color to use for highlighting matches')
+args = parser.parse_args(sys.argv[1:])
+
+search = '(%s)' % '|'.join(args.patterns)
+replace = '\x1b[38;5;232m\x1b[48;5;%sm\\1\x1b[0;0m' % colors[args.color]
+pattern = re.compile(search)
+
+try:
+    for line in sys.stdin:
+        print(pattern.sub(replace, line, count=args.limit), end='')
+except BrokenPipeError:
+    sys.exit(1)
+except KeyboardInterrupt:
+    sys.exit(2)
