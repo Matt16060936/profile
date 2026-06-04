@@ -1,4 +1,4 @@
 #!/bin/bash
-# requirements: coreutils (date)
+# requirements: bash, coreutils (date)
 
 echo "[$(date +'%F %T')] ~/.bash_logout" >>~/.userlog
