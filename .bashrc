@@ -1,6 +1,5 @@
 #!/bin/bash
 # requirements: bash, coreutils (date), vim
-
 echo "[$(date +'%F %T')] ~/.bashrc" >>~/.userlog
 
 # change all the "154" to "111" for blue instead of green
