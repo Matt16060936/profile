@@ -1,12 +1,11 @@
 # general
-.gitempty
-.classpath*
 /bin/
+.env
 
 # netbeans
-/nbproject/
-/nbactions.xml
-/nb-configuration.xml
+nbproject/
+nbactions.xml
+nb-configuration.xml
 
 # vscode
 .vscode
@@ -19,23 +18,39 @@
 
 # eclipse
 .project
-.settings
+.settings/
 .pydevproject
 
 # maven
+.mvn
 .checkstyle
 dependency-reduced-pom.xml
-**/target/
+target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
 
 # gradle
 .factorypath
 
+# java
+hs_err_pid*
+.classpath*
+
+# kotlin
+.kotlin/
+
 # go
+go.work
 go.sum
+go.work.sum
 
 # python
-.venv
-__pycache__
+.py[codz]
+*$py.class
+.venv/
+__pycache__/
 
 # vim
 *.swp
