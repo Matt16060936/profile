@@ -1,0 +1,55 @@
+# general
+.gitempty
+.classpath*
+/bin/
+
+# netbeans
+/nbproject/
+/nbactions.xml
+/nb-configuration.xml
+
+# vscode
+.vscode
+
+# intellij
+.idea
+*.iml
+*.ipr
+*.iws
+
+# eclipse
+.project
+.settings
+.pydevproject
+
+# maven
+.checkstyle
+dependency-reduced-pom.xml
+**/target/
+
+# gradle
+.factorypath
+
+# go
+go.sum
+
+# python
+.venv
+__pycache__
+
+# vim
+*.swp
+*.swo
+
+# mac
+.DS_Store
+
+# windows
+Thumbs.db
+
+# oh no you didnt
+*.pem
+*.key
+*.p12
+*.crt
+*.ds
