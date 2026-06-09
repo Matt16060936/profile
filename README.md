@@ -1,2 +1,2 @@
 # profile
-Just some common personal settings for bash, vim, tmux, git, etc.
+Just some common personal settings and scripts for a typical linux environment.
