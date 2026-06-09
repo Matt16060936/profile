@@ -1,6 +1,8 @@
 [user]
 	name = YOUR_NAME_HERE_LOL
 	email = YOUR_EMAIL_HERE_LOL
+[init]
+	defaultBranch = main
 [alias]
 	lol = log --decorate --color --oneline --graph
 [color]
