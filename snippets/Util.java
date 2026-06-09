@@ -44,4 +44,16 @@ public class Util {
         Collections.addAll(result, elems);
         return result;
     }
+
+    public static boolean nullOrEmpty(CharSequence chars) {
+        if (chars == null)
+            return true;
+        return chars.isEmpty();
+    }
+
+    public static boolean nullOrEmpty(Collection<?> items) {
+        if (items == null)
+            return true;
+        return items.isEmpty();
+    }
 }
