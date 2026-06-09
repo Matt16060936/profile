@@ -56,4 +56,10 @@ public class Util {
             return true;
         return items.isEmpty();
     }
+
+    public static boolean nullOrEmpty(Object[] items) {
+        if (items == null)
+            return true;
+        return items.length < 1;
+    }
 }
