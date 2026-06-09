@@ -10,4 +10,5 @@
 	branch = auto
 	status = auto
 [core]
+	excludesFile = /home/YOUR_USER_HERE_LOL/.gitignore
 	longpaths = true
