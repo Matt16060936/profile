@@ -1,0 +1,149 @@
+#!/bin/bash
+# requirements: bash, coreutils (readlink/basename/mv/mkdir), file
+SELF=$(basename `readlink -f $0`)
+VERBOSE=0
+OWNER='root:root'
+FMOD='644'
+DMOD='755'
+BMOD='755'
+MAXD=5
+
+function errquit {
+    echo >&2 -e "$1"
+    $DEBUG exit 1
+}
+
+function verbose {
+    [[ $VERBOSE -eq 1 ]] && echo >&2 -e "$1"
+}
+
+function _mkdir {
+    if [[ -d "$1" ]]; then
+        verbose "directory already exists: $1"
+        return
+    fi
+    $DEBUG mkdir -p "$1" && verbose "created directory: $1" || errquit "failed to create directory: $1"
+}
+
+function _mv {
+    [[ ! -e "$1" ]] && errquit "cannot move: source doesnt exist: $1"
+    [[ -e "$2" ]] && errquit "cannot move: destination already exists: $2"
+    $DEBUG mv "$1" "$2" && verbose "moved '$1' to '$2'" || errquit "failed to move '$1' to '$2'"
+}
+
+function _rm {
+    if [[ ! -e "$1" ]]; then
+        verbose "remove not needed, path does not exist: $1"
+        return
+    fi
+    $DEBUG rm "$1" && verbose "removed: $1" || errquit "failed to remove: $1"
+}
+
+function _ln {
+    [[ ! -e "$1" ]] && errquit "cannot symlink: source doesnt exist: $1"
+    [[ -e "$2" ]] && errquit "cannot symlink: destination already exists: $2"
+    $DEBUG ln -s "$1" "$2" && verbose "symlinked '$1' to '$2'" || errquit "failed to symlink '$1' to '$2'"
+}
+
+function _chown {
+    [[ ! -e "$1" ]] && errquit "cannot chown: path does not exist: $1"
+    $DEBUG chown "$2" "$1" && verbose "chowned $1 to $2" || errquit "failed to chown $1 to $2"
+}
+
+function _chown_recursive {
+    [[ ! -e "$1" ]] && errquit "cannot recursive chown: path does not exist: $1"
+    $DEBUG chown -R "$2" "$1" && verbose "recursive chowned $1 to $2" || errquit "failed to recursive chown $1 to $2"
+}
+
+function chmod_dirs {
+    [[ ! -d "$1" ]] && errquit "cannot chmod dirs when directory does not exit: $1"
+    $DEBUG find "$1" -type d -exec chmod "$2" {} \; && verbose "chmodded dirs $2 under $1" || errquit "failed to chmod dirs $2 under $1"
+}
+
+function chmod_files {
+    [[ ! -d "$1" ]] && errquit "cannot chmod files when directory does not exit: $1"
+    $DEBUG find "$1" -type f -exec chmod "$2" {} \; && verbose "chmodded files $2 under $1" || errquit "failed to chmod files $2 under $1"
+}
+
+function chmod_bins {
+    [[ ! -d "$1" ]] && errquit "cannot chmod bins when directory does not exit: $1"
+    find "$1" -maxdepth "$3" -type f | while read FILE; do
+        file "$FILE" | grep -q -i -e 'executable' || continue
+        $DEBUG chmod "$2" "$FILE" && verbose "chmodded $2 executable: $FILE" || errquit "failed to chmod $2 executable: $FILE"
+    done
+}
+
+function help_and_exit {
+    [[ -n "$@" ]] && echo -e >&2 "\nERROR: ${@}"
+    echo >&2 ''
+    echo >&2 "usage: $SELF [-h][-v][-o owner][-d mode][-e mode][-f mode] SRC DEST VER [LINK]"
+    echo >&2 ''
+    echo >&2 'opts:'
+    echo >&2 '  -h        print help and exit'
+    echo >&2 "  -o        chowner for destination (default $OWNER)"
+    echo >&2 "  -d        dir mode (default $DMOD)"
+    echo >&2 "  -b        binary executable mode (default $BMOD)"
+    echo >&2 "  -f        file mode (default $FMOD)"
+    echo >&2 "  -m        maxdepth to scan for executables (default $MAXD)"
+    echo >&2 '  -v        print verbose info to stderr'
+    echo >&2 ''
+    echo >&2 'args:'
+    echo >&2 '  SRC       source directory to move'
+    echo >&2 '  DEST      destination basedir'
+    echo >&2 '  VER       version being moved'
+    echo >&2 '  LINK      (default none)'
+    echo >&2 ''
+    echo >&2 'examples:'
+    echo >&2 "  sudo $SELF -v -m 2 ~/Downloads/waterfox /opt/waterfox 6.6.15 current"
+    echo >&2 "  sudo $SELF -v -m 2 ~/Downloads/eclipse /opt/eclipse jee-2026-06-R-linux-gtk-x86_64 current"
+    echo >&2 "  sudo $SELF -v -m 3 ~/Downloads/idea-IU-261.25134.95 /opt/intellij idea-IU-261.25134.95 current"
+    echo >&2 ''
+    exit 1
+}
+
+while getopts ':hb:d:f:m:o:v' OPT; do
+    case "$OPT" in
+    h) help_and_exit;;
+    b) BMOD="$OPTARG";;
+    d) DMOD="$OPTARG";;
+    f) FMOD="$OPTARG";;
+    m) MAXD="$OPTARG";;
+    o) OWNER="$OPTARG";;
+    v) VERBOSE=1;;
+    \?) errquit "unsupported option: $OPTARG";;
+    *) errquit "option missing value: $OPTARG";;
+    esac
+done
+shift $((OPTIND-1))
+
+DETAIL="expected 3 or 4, found ${#@}"
+[[ "$MAXD" != '0' && "$MAXD" -eq 0 ]] && help_and_exit "max-depth isnt a number: $MAXD"
+[[ ${#@} -lt 3 ]] && help_and_exit "not enough arguments provided ($DETAIL)" 
+[[ ${#@} -gt 4 ]] && help_and_exit "too many arguments provided ($DETAIL)"
+verbose "argument count correct ($DETAIL)"
+
+SRC="$1"
+DEST="$2"
+VER="$3"
+LINK="$4"
+verbose "     source: $SRC"
+verbose "destination: $DEST"
+verbose "    version: $VER"
+verbose "    symlink: $LINK"
+verbose "  max-depth: $MAXD (from ${DEST}/${VER})"
+
+[[ ! -d "$SRC" ]] && errquit "source is not a directory: $SRC" || verbose "verified source is a directory: $SRC"
+[[ ! -d "$DEST" ]] && _mkdir "$DEST" || verbose "verified destination directory exists: $DEST"
+[[ -e "${DEST}/${VER}" ]] && errquit "version already exists in destination: ${DEST}/${VER}"
+_mv "$SRC" "${DEST}/${VER}"
+if [[ -n "$LINK" ]]; then
+    [[ -e "${DEST}/${LINK}" ]] && _rm "${DEST}/${LINK}"
+    _ln "${DEST}/${VER}" "${DEST}/${LINK}"
+fi
+_chown "${DEST}/$VER" "$OWNER"
+_chown_recursive "${DEST}/${VER}" "$OWNER"
+chmod_dirs "${DEST}/${VER}" "$DMOD"
+chmod_files "${DEST}/${VER}" "$FMOD"
+chmod_bins "${DEST}/${VER}" "$BMOD" "$MAXD"
+verbose 'done!'
+
