@@ -1,7 +1,8 @@
 syntax on
+colo sorbet
+hi Normal guibg=NONE ctermbg=NONE
 set background=dark
 set term=screen-256color
-colo slate
 set nu
 set nosm
 set nohls
