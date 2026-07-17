@@ -1,5 +1,5 @@
 #!/bin/bash
-# requirements: bash, coreutils (date)
+# requirements: bash, coreutils (date), vim
 echo "[$(date +'%F %T')] ~/.bash_profile" >>~/.userlog
 
 # change all the "111" to "154" for green instead of blue
