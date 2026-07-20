@@ -1,8 +1,8 @@
 syntax on
-colo sorbet
-hi Normal guibg=NONE ctermbg=NONE
-set background=dark
 set term=screen-256color
+colo habamax " sorbet catppuccin lunaperche wildcharm
+set background=dark
+hi Normal guibg=NONE ctermbg=NONE
 set nu
 set nosm
 set nohls
