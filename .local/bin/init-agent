@@ -1,0 +1,38 @@
+#!/bin/bash
+alias find-agents="find /tmp -type s -name 'agent.*' -path '*ssh*' 2>/dev/null"
+
+function agent_commands_present {
+    local has_sshagent=0 has_killall=0
+    command -v env &>/dev/null && has_env=1
+    command -v ssh-agent &>/dev/null && has_sshagent=1
+    command -v killall &>/dev/null && has_killall=1
+    [[ $has_env && $has_sshagent && $has_killall ]]
+}
+
+function agent_env_missing {
+    local has_sock=0 has_pid=0
+    env 2>/dev/null | grep -q -e '^SSH_AUTH_SOCK=/.\+$' && has_sock=1
+    env 2>/dev/null | grep -q -e '^SSH_AGENT_PID=[1-9]\+[0-9]*$' && has_pid=1
+    [[ $has_sock -eq 0 || $has_pid -eq 0 ]]
+}
+
+function export_from_agent_file {
+    if [[ -f ~/.agent ]] && [[ $(wc -l ~/.agent | head -1 | cut -d' ' -f1) -eq 2 ]]; then
+        SSH_AUTH_SOCK="$(head -1 ~/.agent 2>/dev/null | cut -d'=' -f2-)"
+        SSH_AGENT_PID="$(tail -1 ~/.agent 2>/dev/null | cut -d'=' -f2-)"
+        if [[ -n "$SSH_AUTH_SOCK" && -S "$SSH_AUTH_SOCK" && "$SSH_AGENT_PID" -gt 1 ]]; then
+            export SSH_AUTH_SOCK SSH_AGENT_PID
+            return 0
+        fi
+    fi
+    return 1
+}
+
+if agent_commands_present; then
+    agent_env_missing && export_from_agent_file
+    if agent_env_missing; then
+        killall ssh-agent &>/dev/null
+        eval "$(ssh-agent)" >/dev/null
+        echo -e "SSH_AUTH_SOCK=${SSH_AUTH_SOCK}\nSSH_AGENT_PID=${SSH_AGENT_PID}" >~/.agent
+    fi
+fi
