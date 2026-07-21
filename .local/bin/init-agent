@@ -1,5 +1,4 @@
 #!/bin/bash
-alias find-agents="find /tmp -type s -name 'agent.*' -path '*ssh*' 2>/dev/null"
 
 function agent_commands_present {
     local has_sshagent=0 has_killall=0
