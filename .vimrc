@@ -1,11 +1,11 @@
 command! Bgfix set background=dark|hi Normal guibg=NONE ctermbg=NONE
 syntax on
-set term=screen-256color
+set term=screen-256color # xterm-256color
 colo habamax " sorbet catppuccin lunaperche wildcharm industrial slate
 Bgfix
 set nu
 set nosm
-set nohls
+set hls
 set nowrap
 set noeol
 set nois
