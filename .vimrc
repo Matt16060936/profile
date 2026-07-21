@@ -1,6 +1,6 @@
 syntax on
 set term=screen-256color
-colo habamax " sorbet catppuccin lunaperche wildcharm
+colo habamax " sorbet catppuccin lunaperche wildcharm industrial slate
 set background=dark
 hi Normal guibg=NONE ctermbg=NONE
 set nu
