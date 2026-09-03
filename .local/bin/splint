@@ -1,0 +1,12 @@
+#!/bin/bash
+
+SPLIT="${1:=1}"
+if [[ -z "$SPLIT" ]]; then
+  echo >&2 'split line-count cannot be empty'
+  exit 1
+elif [[ "$SPLIT" -lt 1 && "SPLIT" != '0' ]]; then
+  echo >&2 'split line-count must be zero or more'
+  exit 2
+fi
+
+awk "{if (NR <= ${SPLIT}) { print >\"/dev/tty\" } else { print } }"
